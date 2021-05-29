@@ -1,7 +1,6 @@
 package jw.notify;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
@@ -36,7 +35,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import io.github.bonigarcia.wdm.WebDriverManager;
 
 public class Main {
-	private static final Properties PROPERTIES = new Properties();
+	// private static final Properties PROPERTIES = new Properties();
 
 	private static final String NO_NEW_DOCUMENTS_MESSAGE = "Seit der letzten Überprüfung aktualisierte Dokumente:\n"
 			+ "Keine. Es sind keine Dokumente hinzugefügt oder geändert worden.";
@@ -44,27 +43,27 @@ public class Main {
 	WebDriver driver;
 
 	public static void main(String[] args)
+
 			throws InterruptedException, IOException, AddressException, MessagingException {
-		PROPERTIES.load(new FileInputStream("jw-notify.properties"));
+		// PROPERTIES.load(new FileInputStream("jw-notify.properties"));
 		try {
 			Main main = new Main();
 			AtomicBoolean success = new AtomicBoolean(true);
 			main.getDocumentsIfUnread().ifPresent(updatedDocuments -> {
 				try {
-					sendMail(PROPERTIES.getProperty("mail.recipient"), PROPERTIES.getProperty("mail.subject"),
-							PROPERTIES.getProperty("mail.prefix") + StringEscapeUtils.escapeHtml4(updatedDocuments));
+					sendMail(System.getenv("mail.recipient"), System.getenv("mail.subject"),
+							System.getenv("mail.prefix") + StringEscapeUtils.escapeHtml4(updatedDocuments));
 				} catch (MessagingException e) {
 					success.set(false);
 					e.printStackTrace();
 				}
 			});
 			if (success.get()) {
-				new URL(PROPERTIES.getProperty("healthcheck")).getContent();
+				new URL(System.getenv("healthcheck")).getContent();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			sendMail(PROPERTIES.getProperty("mail.recipient"), "Fehler in JW-Notify",
-					e.getClass() + ": " + e.getMessage());
+			sendMail(System.getenv("mail.recipient"), "Fehler in JW-Notify", e.getClass() + ": " + e.getMessage());
 		}
 		// Instantiate Web Driver
 	}
@@ -74,20 +73,19 @@ public class Main {
 		Properties prop = new Properties();
 		prop.put("mail.smtp.auth", true);
 		prop.put("mail.smtp.starttls.enable", "true");
-		prop.put("mail.smtp.host", PROPERTIES.getProperty("mail.smtp.host"));
-		prop.put("mail.smtp.port", PROPERTIES.getProperty("mail.smtp.port"));
-		prop.put("mail.smtp.ssl.trust", PROPERTIES.getProperty("mail.smtp.host"));
+		prop.put("mail.smtp.host", System.getenv("mail.smtp.host"));
+		prop.put("mail.smtp.port", System.getenv("mail.smtp.port"));
+		prop.put("mail.smtp.ssl.trust", System.getenv("mail.smtp.host"));
 
 		Session session = Session.getInstance(prop, new Authenticator() {
 			@Override
 			protected PasswordAuthentication getPasswordAuthentication() {
-				return new PasswordAuthentication(PROPERTIES.getProperty("mail.sender"),
-						PROPERTIES.getProperty("mail.smtp.password"));
+				return new PasswordAuthentication(System.getenv("mail.sender"), System.getenv("mail.smtp.password"));
 			}
 		});
 
 		Message message = new MimeMessage(session);
-		message.setFrom(new InternetAddress(PROPERTIES.getProperty("mail.sender")));
+		message.setFrom(new InternetAddress(System.getenv("mail.sender")));
 		message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipient));
 		message.setSubject(subject);
 
@@ -136,19 +134,19 @@ public class Main {
 	}
 
 	private String getUpdatedDocuments() {
-		driver.get(PROPERTIES.getProperty("url"));
+		driver.get(System.getenv("url"));
 
 		// Cookie-Dialog
 		getElementWhenClickable(By.className("legal-notices-client--accept-button")).click();
 
-		getElementWhenClickable(By.id("form.userName")).sendKeys(PROPERTIES.getProperty("user"));
+		getElementWhenClickable(By.id("form.userName")).sendKeys(System.getenv("user"));
 		getElementWhenClickable(By.cssSelector("button[type=submit]")).click();
 
-		getElementWhenClickable(By.id("passwordInput")).sendKeys(PROPERTIES.getProperty("password"));
+		getElementWhenClickable(By.id("passwordInput")).sendKeys(System.getenv("password"));
 		getElementWhenClickable(By.id("submitButton")).click();
 
-		getElementWhenClickable(By.className("field__input--password")).sendKeys(PROPERTIES.getProperty("answer1"));
-		driver.findElements(By.className("field__input--password")).get(1).sendKeys(PROPERTIES.getProperty("answer2"));
+		getElementWhenClickable(By.className("field__input--password")).sendKeys(System.getenv("answer1"));
+		driver.findElements(By.className("field__input--password")).get(1).sendKeys(System.getenv("answer2"));
 		getElementWhenClickable(By.cssSelector("button[type=submit]")).click();
 
 		getElementWhenClickable(By.xpath("//*[contains(text(), 'Dokumente')]")).click();
