@@ -136,8 +136,10 @@ public class Main {
 	private String getUpdatedDocuments() {
 		driver.get(System.getenv("URL"));
 
+		System.out.println(driver.findElement(By.tagName("body")).getText());
+
 		// Cookie-Dialog
-		getElementWhenClickable(By.className("legal-notices-client--accept-button")).click();
+		// getElementWhenClickable(By.className("legal-notices-client--accept-button")).click();
 
 		getElementWhenClickable(By.id("form.userName")).sendKeys(System.getenv("USER"));
 		getElementWhenClickable(By.cssSelector("button[type=submit]")).click();
