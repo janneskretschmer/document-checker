@@ -134,19 +134,19 @@ public class Main {
 	}
 
 	private String getUpdatedDocuments() {
-		driver.get(System.getenv("url"));
+		driver.get(System.getenv("URL"));
 
 		// Cookie-Dialog
 		getElementWhenClickable(By.className("legal-notices-client--accept-button")).click();
 
-		getElementWhenClickable(By.id("form.userName")).sendKeys(System.getenv("user"));
+		getElementWhenClickable(By.id("form.userName")).sendKeys(System.getenv("USER"));
 		getElementWhenClickable(By.cssSelector("button[type=submit]")).click();
 
-		getElementWhenClickable(By.id("passwordInput")).sendKeys(System.getenv("password"));
+		getElementWhenClickable(By.id("passwordInput")).sendKeys(System.getenv("PASSWORD"));
 		getElementWhenClickable(By.id("submitButton")).click();
 
-		getElementWhenClickable(By.className("field__input--password")).sendKeys(System.getenv("answer1"));
-		driver.findElements(By.className("field__input--password")).get(1).sendKeys(System.getenv("answer2"));
+		getElementWhenClickable(By.className("field__input--password")).sendKeys(System.getenv("ANSWER1"));
+		driver.findElements(By.className("field__input--password")).get(1).sendKeys(System.getenv("ANSWER2"));
 		getElementWhenClickable(By.cssSelector("button[type=submit]")).click();
 
 		getElementWhenClickable(By.xpath("//*[contains(text(), 'Dokumente')]")).click();
