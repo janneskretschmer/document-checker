@@ -51,19 +51,19 @@ public class Main {
 			AtomicBoolean success = new AtomicBoolean(true);
 			main.getDocumentsIfUnread().ifPresent(updatedDocuments -> {
 				try {
-					sendMail(System.getenv("mail.recipient"), System.getenv("mail.subject"),
-							System.getenv("mail.prefix") + StringEscapeUtils.escapeHtml4(updatedDocuments));
+					sendMail(System.getenv("MAIL_RECIPIENT"), System.getenv("MAIL_SUBJECT"),
+							System.getenv("MAIL_PREFIX") + StringEscapeUtils.escapeHtml4(updatedDocuments));
 				} catch (MessagingException e) {
 					success.set(false);
 					e.printStackTrace();
 				}
 			});
 			if (success.get()) {
-				new URL(System.getenv("healthcheck")).getContent();
+				new URL(System.getenv("HEALTHCHECK")).getContent();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			sendMail(System.getenv("mail.recipient"), "Fehler in JW-Notify", e.getClass() + ": " + e.getMessage());
+			sendMail(System.getenv("MAIL_RECIPIENT"), "Fehler in JW-Notify", e.getClass() + ": " + e.getMessage());
 		}
 		// Instantiate Web Driver
 	}
@@ -73,19 +73,19 @@ public class Main {
 		Properties prop = new Properties();
 		prop.put("mail.smtp.auth", true);
 		prop.put("mail.smtp.starttls.enable", "true");
-		prop.put("mail.smtp.host", System.getenv("mail.smtp.host"));
-		prop.put("mail.smtp.port", System.getenv("mail.smtp.port"));
-		prop.put("mail.smtp.ssl.trust", System.getenv("mail.smtp.host"));
+		prop.put("mail.smtp.host", System.getenv("MAIL_SMTP_HOST"));
+		prop.put("mail.smtp.port", System.getenv("MAIL_SMTP_PORT"));
+		prop.put("mail.smtp.ssl.trust", System.getenv("MAIL_SMTP_HOST"));
 
 		Session session = Session.getInstance(prop, new Authenticator() {
 			@Override
 			protected PasswordAuthentication getPasswordAuthentication() {
-				return new PasswordAuthentication(System.getenv("mail.sender"), System.getenv("mail.smtp.password"));
+				return new PasswordAuthentication(System.getenv("MAIL_SENDER"), System.getenv("MAIL_SMTP_PASSWORD"));
 			}
 		});
 
 		Message message = new MimeMessage(session);
-		message.setFrom(new InternetAddress(System.getenv("mail.sender")));
+		message.setFrom(new InternetAddress(System.getenv("MAIL_SENDER")));
 		message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipient));
 		message.setSubject(subject);
 
