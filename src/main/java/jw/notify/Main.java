@@ -21,6 +21,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -125,16 +126,11 @@ public class Main {
 		String updatedDocuments = getUpdatedDocuments();
 		if (NO_NEW_DOCUMENTS_MESSAGE.equals(updatedDocuments)
 				|| IOUtils.toString(new URL(System.getenv("GET_URL")).openStream(), "UTF-8").equals(updatedDocuments)) {
-			// return Optional.empty();
-		}
-		try {
-			sendMail(System.getenv("MAIL_RECIPIENT"), "url", System.getenv("SET_URL"));
-		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			return Optional.empty();
 		}
 		if (!Boolean.parseBoolean(IOUtils.toString(
-				new URL(System.getenv("SET_URL") + URLEncoder.encode(updatedDocuments, "UTF-8")).openStream(),
+				new URL(StringUtils.join(System.getenv("SET_URL"), URLEncoder.encode(updatedDocuments, "UTF-8")))
+						.openStream(),
 				"UTF-8"))) {
 			throw new RuntimeException("Writing old document state failed!");
 		}
