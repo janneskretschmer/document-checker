@@ -125,12 +125,11 @@ public class Main {
 	public Optional<String> getDocumentsIfUnread() throws IOException {
 		String updatedDocuments = getUpdatedDocuments();
 		if (NO_NEW_DOCUMENTS_MESSAGE.equals(updatedDocuments)
-				|| IOUtils.toString(new URL("http://" + System.getenv("GET_URL")).openStream(), "UTF-8")
-						.equals(updatedDocuments)) {
+				|| IOUtils.toString(new URL(System.getenv("GET_URL")).openStream(), "UTF-8").equals(updatedDocuments)) {
 			return Optional.empty();
 		}
-		if (!Boolean.parseBoolean(IOUtils.toString(new URL(
-				StringUtils.join("http://", System.getenv("SET_URL"), URLEncoder.encode(updatedDocuments, "UTF-8")))
+		if (!Boolean.parseBoolean(IOUtils.toString(
+				new URL(StringUtils.join(System.getenv("SET_URL"), URLEncoder.encode(updatedDocuments, "UTF-8")))
 						.openStream(),
 				"UTF-8"))) {
 			throw new RuntimeException("Writing old document state failed!");
