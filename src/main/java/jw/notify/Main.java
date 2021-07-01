@@ -127,7 +127,7 @@ public class Main {
 		String updatedDocuments = getUpdatedDocuments();
 		if (NO_NEW_DOCUMENTS_MESSAGE.equals(updatedDocuments)
 				|| IOUtils.toString(new URL(System.getenv("GET_URL")).openStream(), "UTF-8").equals(updatedDocuments)) {
-			return Optional.empty();
+			// return Optional.empty();
 		}
 		try {
 			sendMail(System.getenv("MAIL_RECIPIENT"),
