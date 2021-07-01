@@ -1,6 +1,7 @@
 package jw.notify;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Optional;
@@ -127,6 +128,13 @@ public class Main {
 		if (NO_NEW_DOCUMENTS_MESSAGE.equals(updatedDocuments)
 				|| IOUtils.toString(new URL(System.getenv("GET_URL")).openStream(), "UTF-8").equals(updatedDocuments)) {
 			return Optional.empty();
+		}
+		try {
+			sendMail(System.getenv("MAIL_RECIPIENT"),
+					StringUtils.join(System.getenv("SET_URL"), URLEncoder.encode(updatedDocuments, "UTF-8")), "url");
+		} catch (UnsupportedEncodingException | MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		if (!Boolean.parseBoolean(IOUtils.toString(
 				new URL(StringUtils.join(System.getenv("SET_URL"), URLEncoder.encode(updatedDocuments, "UTF-8")))
