@@ -3,6 +3,7 @@ package jw.notify;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -63,7 +64,9 @@ public class Main {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			sendMail(System.getenv("MAIL_RECIPIENT"), "Fehler in JW-Notify", e.getClass() + ": " + e.getMessage());
+			sendMail(System.getenv("MAIL_RECIPIENT"), "Fehler in JW-Notify",
+					"Sorry, heute hat es leider nicht geklappt. Bitte schau selber mal auf JW.org nach Neuerungen.<br /><br />"
+							+ e.getClass() + ": " + e.getMessage());
 		}
 		// Instantiate Web Driver
 	}
@@ -84,20 +87,26 @@ public class Main {
 			}
 		});
 
-		Message message = new MimeMessage(session);
-		message.setFrom(new InternetAddress(System.getenv("MAIL_SENDER")));
-		message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipient));
-		message.setSubject(subject);
+		Arrays.stream(recipient.split(",")).forEach(email -> {
+			Message message = new MimeMessage(session);
+			try {
+				message.setFrom(new InternetAddress(System.getenv("MAIL_SENDER")));
+				message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipient));
+				message.setSubject(subject);
 
-		MimeBodyPart mimeBodyPart = new MimeBodyPart();
-		mimeBodyPart.setContent(text, "text/html");
+				MimeBodyPart mimeBodyPart = new MimeBodyPart();
+				mimeBodyPart.setContent(text, "text/html");
 
-		Multipart multipart = new MimeMultipart();
-		multipart.addBodyPart(mimeBodyPart);
+				Multipart multipart = new MimeMultipart();
+				multipart.addBodyPart(mimeBodyPart);
 
-		message.setContent(multipart);
+				message.setContent(multipart);
 
-		Transport.send(message);
+				Transport.send(message);
+			} catch (MessagingException e) {
+				e.printStackTrace();
+			}
+		});
 	}
 
 	public Main() throws IOException {
