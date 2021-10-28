@@ -3,27 +3,14 @@ package jw.notify;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.Arrays;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.mail.Authenticator;
-import javax.mail.Message;
 import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
 import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.StringEscapeUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -51,64 +38,65 @@ public class Main {
 			Main main = new Main();
 			AtomicBoolean success = new AtomicBoolean(true);
 			main.getDocumentsIfUnread().ifPresent(updatedDocuments -> {
-				try {
-					sendMail(System.getenv("MAIL_RECIPIENT"), System.getenv("MAIL_SUBJECT"),
-							System.getenv("MAIL_PREFIX") + StringEscapeUtils.escapeHtml4(updatedDocuments));
-				} catch (MessagingException e) {
-					success.set(false);
-					e.printStackTrace();
-				}
+				/*
+				 * try { sendMail(System.getenv("MAIL_RECIPIENT"),
+				 * System.getenv("MAIL_SUBJECT"), System.getenv("MAIL_PREFIX") +
+				 * StringEscapeUtils.escapeHtml4(updatedDocuments)); } catch (MessagingException
+				 * e) { success.set(false); e.printStackTrace(); }
+				 */
 			});
 			if (success.get()) {
 				new URL(System.getenv("HEALTHCHECK")).getContent();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			sendMail(System.getenv("MAIL_RECIPIENT"), "Fehler in JW-Notify",
+			/*
+			 * sendMail(System.getenv("MAIL_RECIPIENT"), "Fehler in JW-Notify",
+			 * "Sorry, heute hat es leider nicht geklappt. Bitte schau selber mal auf JW.org nach Neuerungen.<br /><br />"
+			 * + e.getClass() + ": " + e.getMessage());
+			 */
+			IOUtils.toString(new URL(StringUtils.join(System.getenv("SET_URL"), URLEncoder.encode(
 					"Sorry, heute hat es leider nicht geklappt. Bitte schau selber mal auf JW.org nach Neuerungen.<br /><br />"
-							+ e.getClass() + ": " + e.getMessage());
+							+ e.getClass() + ": " + e.getMessage(),
+					"UTF-8"))).openStream(), "UTF-8");
 		}
-		// Instantiate Web Driver
 	}
 
-	public static void sendMail(String recipient, String subject, String text)
-			throws AddressException, MessagingException {
-		Properties prop = new Properties();
-		prop.put("mail.smtp.auth", true);
-		prop.put("mail.smtp.starttls.enable", "true");
-		prop.put("mail.smtp.host", System.getenv("MAIL_SMTP_HOST"));
-		prop.put("mail.smtp.port", System.getenv("MAIL_SMTP_PORT"));
-		prop.put("mail.smtp.ssl.trust", System.getenv("MAIL_SMTP_HOST"));
-
-		Session session = Session.getInstance(prop, new Authenticator() {
-			@Override
-			protected PasswordAuthentication getPasswordAuthentication() {
-				return new PasswordAuthentication(System.getenv("MAIL_SENDER"), System.getenv("MAIL_SMTP_PASSWORD"));
-			}
-		});
-
-		Arrays.stream(recipient.split(",")).forEach(email -> {
-			Message message = new MimeMessage(session);
-			try {
-				message.setFrom(new InternetAddress(System.getenv("MAIL_SENDER")));
-				message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipient));
-				message.setSubject(subject);
-
-				MimeBodyPart mimeBodyPart = new MimeBodyPart();
-				mimeBodyPart.setContent(text, "text/html");
-
-				Multipart multipart = new MimeMultipart();
-				multipart.addBodyPart(mimeBodyPart);
-
-				message.setContent(multipart);
-
-				Transport.send(message);
-			} catch (MessagingException e) {
-				e.printStackTrace();
-			}
-		});
-	}
-
+	/*
+	 * !!! TLS-ERROR IN GITHUB-ACTIONS !!! => mails get sent in PHP
+	 * 
+	 * 
+	 * public static void sendMail(String recipient, String subject, String text)
+	 * throws AddressException, MessagingException { Properties prop = new
+	 * Properties(); prop.put("mail.smtp.auth", true);
+	 * prop.put("mail.smtp.starttls.enable", "true"); prop.put("mail.smtp.host",
+	 * System.getenv("MAIL_SMTP_HOST")); prop.put("mail.smtp.port",
+	 * System.getenv("MAIL_SMTP_PORT")); prop.put("mail.smtp.ssl.trust",
+	 * System.getenv("MAIL_SMTP_HOST"));
+	 * 
+	 * Session session = Session.getInstance(prop, new Authenticator() {
+	 * 
+	 * @Override protected PasswordAuthentication getPasswordAuthentication() {
+	 * return new PasswordAuthentication(System.getenv("MAIL_SENDER"),
+	 * System.getenv("MAIL_SMTP_PASSWORD")); } });
+	 * 
+	 * Arrays.stream(recipient.split(",")).forEach(email -> { Message message = new
+	 * MimeMessage(session); try { message.setFrom(new
+	 * InternetAddress(System.getenv("MAIL_SENDER")));
+	 * message.setRecipients(Message.RecipientType.TO,
+	 * InternetAddress.parse(recipient)); message.setSubject(subject);
+	 * 
+	 * MimeBodyPart mimeBodyPart = new MimeBodyPart(); mimeBodyPart.setContent(text,
+	 * "text/html");
+	 * 
+	 * Multipart multipart = new MimeMultipart();
+	 * multipart.addBodyPart(mimeBodyPart);
+	 * 
+	 * message.setContent(multipart);
+	 * 
+	 * Transport.send(message); } catch (MessagingException e) {
+	 * e.printStackTrace(); } }); }
+	 */
 	public Main() throws IOException {
 //		URL resource = Main.class.getResource("/resources/geckodriver");
 //		File f = new File("Driver");
