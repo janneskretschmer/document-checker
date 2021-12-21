@@ -1,1 +1,1 @@
-# document-checker
+# Document Checker
