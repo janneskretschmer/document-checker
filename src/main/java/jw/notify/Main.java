@@ -174,6 +174,6 @@ public class Main {
 	}
 
 	private <T> T getElementWhen(ExpectedCondition<T> elementToBeClickable) {
-		return new WebDriverWait(driver, 30).until(elementToBeClickable);
+		return new WebDriverWait(driver, 120).until(elementToBeClickable);
 	}
 }
