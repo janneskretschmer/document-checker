@@ -138,8 +138,6 @@ public class Main {
 	private String getUpdatedDocuments() {
 		driver.get(System.getenv("URL"));
 
-		System.out.println(driver.findElement(By.tagName("body")).getText());
-
 		// Cookie-Dialog
 		// getElementWhenClickable(By.className("legal-notices-client--accept-button")).click();
 
