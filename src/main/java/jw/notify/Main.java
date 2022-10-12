@@ -12,6 +12,7 @@ import javax.mail.internet.AddressException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -34,8 +35,10 @@ public class Main {
 
 			throws InterruptedException, IOException, AddressException, MessagingException {
 		// PROPERTIES.load(new FileInputStream("jw-notify.properties"));
+		WebDriver driver = null;
 		try {
 			Main main = new Main();
+			driver = main.driver;
 			AtomicBoolean success = new AtomicBoolean(true);
 			main.getDocumentsIfUnread().ifPresent(updatedDocuments -> {
 				/*
@@ -49,6 +52,7 @@ public class Main {
 				new URL(System.getenv("HEALTHCHECK")).getContent();
 			}
 		} catch (Exception e) {
+			System.out.println(driver.getPageSource());
 			e.printStackTrace();
 			/*
 			 * sendMail(System.getenv("MAIL_RECIPIENT"), "Fehler in JW-Notify",
@@ -149,9 +153,21 @@ public class Main {
 
 		getElementWhenClickable(By.className("field__input--password")).sendKeys(System.getenv("ANSWER1"));
 		driver.findElements(By.className("field__input--password")).get(1).sendKeys(System.getenv("ANSWER2"));
+		// Overlay => js solution
+		// getElementWhenClickable(By.cssSelector("button[type=submit]")).click();
+		JavascriptExecutor ex = (JavascriptExecutor) driver;
+		ex.executeScript("arguments[0].click();", getElementWhenClickable(By.cssSelector("button[type=submit]")));
+
+		getElementWhenClickable(By.className("legal-notices-client--accept-button")).click();
+
+		// Radio somehow not clickable => js solution
+		ex.executeScript("arguments[0].checked = true;",
+				getElementWhen(ExpectedConditions.presenceOfElementLocated(By.id("methodChoice-radio-item-2"))));
 		getElementWhenClickable(By.cssSelector("button[type=submit]")).click();
 
-		getElementWhenClickable(By.xpath("//*[contains(text(), 'Dokumente')]")).click();
+		// Overlay => js solution
+		ex.executeScript("arguments[0].click();",
+				getElementWhenClickable(By.xpath("//*[contains(text(), 'Dokumente')]")));
 
 		getElementWhen(
 				ExpectedConditions.and(ExpectedConditions.visibilityOfElementLocated(By.tagName("unread-documents")),
