@@ -13,6 +13,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -158,7 +159,11 @@ public class Main {
 		JavascriptExecutor ex = (JavascriptExecutor) driver;
 		ex.executeScript("arguments[0].click();", getElementWhenClickable(By.cssSelector("button[type=submit]")));
 
-		getElementWhenClickable(By.className("legal-notices-client--accept-button")).click();
+		try {
+			getElementWhenClickable(By.className("legal-notices-client--accept-button")).click();
+		} catch (TimeoutException t) {
+			System.out.println("No legal notice popup");
+		}
 
 		// Radio somehow not clickable => js solution
 		ex.executeScript("arguments[0].checked = true;",
@@ -188,6 +193,6 @@ public class Main {
 	}
 
 	private <T> T getElementWhen(ExpectedCondition<T> elementToBeClickable) {
-		return new WebDriverWait(driver, 120).until(elementToBeClickable);
+		return new WebDriverWait(driver, 30).until(elementToBeClickable);
 	}
 }
