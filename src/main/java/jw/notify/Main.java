@@ -53,8 +53,8 @@ public class Main {
 				new URL(System.getenv("HEALTHCHECK")).getContent();
 			}
 		} catch (Exception e) {
-			System.out.println(driver.getPageSource());
 			e.printStackTrace();
+			System.out.println(driver.getPageSource());
 			/*
 			 * sendMail(System.getenv("MAIL_RECIPIENT"), "Fehler in JW-Notify",
 			 * "Sorry, heute hat es leider nicht geklappt. Bitte schau selber mal auf JW.org nach Neuerungen.<br /><br />"
@@ -165,10 +165,14 @@ public class Main {
 			System.out.println("No legal notice popup");
 		}
 
-		// Radio somehow not clickable => js solution
-		ex.executeScript("arguments[0].checked = true;",
-				getElementWhen(ExpectedConditions.presenceOfElementLocated(By.id("methodChoice-radio-item-2"))));
-		getElementWhenClickable(By.cssSelector("button[type=submit]")).click();
+		try {
+			// Radio somehow not clickable => js solution
+			ex.executeScript("arguments[0].checked = true;",
+					getElementWhen(ExpectedConditions.presenceOfElementLocated(By.id("methodChoice-radio-item-2"))));
+			getElementWhenClickable(By.cssSelector("button[type=submit]")).click();
+		} catch (TimeoutException t) {
+			System.out.println("No MFA survey");
+		}
 
 		// Overlay => js solution
 		ex.executeScript("arguments[0].click();",
