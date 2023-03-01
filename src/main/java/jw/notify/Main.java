@@ -1,5 +1,6 @@
 package jw.notify;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -54,16 +55,20 @@ public class Main {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			System.out.println(driver.getPageSource());
+			String failingPage = driver.getPageSource();
+			System.out.println(failingPage);
+			IOUtils.write(failingPage, new FileOutputStream("fail.html"), "UTF-8");
 			/*
 			 * sendMail(System.getenv("MAIL_RECIPIENT"), "Fehler in JW-Notify",
 			 * "Sorry, heute hat es leider nicht geklappt. Bitte schau selber mal auf JW.org nach Neuerungen.<br /><br />"
 			 * + e.getClass() + ": " + e.getMessage());
 			 */
-			IOUtils.toString(new URL(StringUtils.join(System.getenv("SET_URL"), URLEncoder.encode(
-					"Sorry, heute hat es leider nicht geklappt. Bitte schau selber mal auf JW.org nach Neuerungen.<br /><br />"
-							+ e.getClass() + ": " + e.getMessage(),
-					"UTF-8"))).openStream(), "UTF-8");
+			if (System.getenv("SET_URL") != null) {
+				IOUtils.toString(new URL(StringUtils.join(System.getenv("SET_URL"), URLEncoder.encode(
+						"Sorry, heute hat es leider nicht geklappt. Bitte schau selber mal auf JW.org nach Neuerungen.<br /><br />"
+								+ e.getClass() + ": " + e.getMessage(),
+						"UTF-8"))).openStream(), "UTF-8");
+			}
 		}
 	}
 
@@ -146,7 +151,7 @@ public class Main {
 		// Cookie-Dialog
 		// getElementWhenClickable(By.className("legal-notices-client--accept-button")).click();
 
-		getElementWhenClickable(By.id("form.userName")).sendKeys(System.getenv("USERNAME"));
+		getElementWhenClickable(By.id("username")).sendKeys(System.getenv("USERNAME"));
 		getElementWhenClickable(By.cssSelector("button[type=submit]")).click();
 
 		getElementWhenClickable(By.id("passwordInput")).sendKeys(System.getenv("PASSWORD"));
@@ -176,7 +181,7 @@ public class Main {
 
 		// Overlay => js solution
 		ex.executeScript("arguments[0].click();",
-				getElementWhenClickable(By.xpath("//*[contains(text(), 'Dokumente')]")));
+				getElementWhenClickable(By.xpath("//*[contains(text(), 'Documents')]")));
 
 		getElementWhen(
 				ExpectedConditions.and(ExpectedConditions.visibilityOfElementLocated(By.tagName("unread-documents")),
