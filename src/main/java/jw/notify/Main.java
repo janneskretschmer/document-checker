@@ -55,6 +55,11 @@ public class Main {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+
+			if (driver == null) {
+				System.out.println("IF DRIVER IS OUTDATED: upgrade this package - https://mvnrepository.com/artifact/io.github.bonigarcia/webdrivermanager");
+			}
+
 			String failingPage = driver.getPageSource();
 			System.out.println(failingPage);
 			IOUtils.write(failingPage, new FileOutputStream("fail.html"), "UTF-8");
