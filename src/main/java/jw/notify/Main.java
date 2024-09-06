@@ -4,6 +4,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -57,7 +58,8 @@ public class Main {
 			e.printStackTrace();
 
 			if (driver == null) {
-				System.out.println("IF DRIVER IS OUTDATED: upgrade this package - https://mvnrepository.com/artifact/io.github.bonigarcia/webdrivermanager");
+				System.out.println(
+						"IF DRIVER IS OUTDATED: upgrade this package - https://mvnrepository.com/artifact/io.github.bonigarcia/webdrivermanager");
 			}
 
 			String failingPage = driver.getPageSource();
@@ -129,7 +131,7 @@ public class Main {
 		WebDriverManager.chromedriver().setup();
 
 		ChromeOptions options = new ChromeOptions();
-		options.setHeadless(true);
+		options.addArguments("--headless=new");
 
 		driver = new ChromeDriver(options);
 	}
@@ -207,6 +209,6 @@ public class Main {
 	}
 
 	private <T> T getElementWhen(ExpectedCondition<T> elementToBeClickable) {
-		return new WebDriverWait(driver, 30).until(elementToBeClickable);
+		return new WebDriverWait(driver, Duration.ofSeconds(30)).until(elementToBeClickable);
 	}
 }
