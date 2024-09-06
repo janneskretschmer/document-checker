@@ -131,8 +131,8 @@ public class Main {
 		WebDriverManager.chromedriver().setup();
 
 		ChromeOptions options = new ChromeOptions();
-		options.addArguments("--headless=new");
-
+		options.addArguments("--headless");
+		options.addArguments("--window-size=1920,1080");
 		driver = new ChromeDriver(options);
 	}
 
