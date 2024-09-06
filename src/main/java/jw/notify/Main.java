@@ -14,6 +14,7 @@ import javax.mail.internet.AddressException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
@@ -132,8 +133,8 @@ public class Main {
 
 		ChromeOptions options = new ChromeOptions();
 		options.addArguments("--headless");
-		options.addArguments("--window-size=1920,1080");
 		driver = new ChromeDriver(options);
+		driver.manage().window().setSize(new Dimension(1440, 900));
 	}
 
 	public Optional<String> getDocumentsIfUnread() throws IOException {
@@ -156,7 +157,11 @@ public class Main {
 		driver.get(System.getenv("URL"));
 
 		// Cookie-Dialog
-		// getElementWhenClickable(By.className("legal-notices-client--accept-button")).click();
+		try {
+			getElementWhenClickable(By.className("lnc-acceptCookiesButton")).click();
+		} catch (TimeoutException t) {
+			System.out.println("No legal notice popup on login");
+		}
 
 		getElementWhenClickable(By.id("username")).sendKeys(System.getenv("USERNAME"));
 		getElementWhenClickable(By.cssSelector("button[type=submit]")).click();
@@ -170,12 +175,6 @@ public class Main {
 		// getElementWhenClickable(By.cssSelector("button[type=submit]")).click();
 		JavascriptExecutor ex = (JavascriptExecutor) driver;
 		ex.executeScript("arguments[0].click();", getElementWhenClickable(By.cssSelector("button[type=submit]")));
-
-		try {
-			getElementWhenClickable(By.className("legal-notices-client--accept-button")).click();
-		} catch (TimeoutException t) {
-			System.out.println("No legal notice popup");
-		}
 
 		try {
 			// Radio somehow not clickable => js solution
